@@ -34,9 +34,10 @@ function collapseWhiteSpace(value: string | null) {
   return value.trim().replace(/\s+/g, " ");
 }
 
-function extractLines(source: Element) {
+export function extractLines(source: Element) {
   const textNode = source.firstChild;
   if (!textNode || textNode.nodeType !== 3) {
+    console.log("EXIT");
     return;
   }
 
@@ -90,8 +91,8 @@ function extractLines(source: Element) {
   resultLines = rawLines.map(function operator(characters) {
     return collapseWhiteSpace(characters.join(""));
   });
-
-  source.removeChild(source.firstChild);
+  console.log({ resultLines });
+  if (resultLines.length > 0) source.removeChild(source.firstChild);
 
   resultLines.forEach((line) => {
     const lineElement = document.createElement("span");
@@ -110,7 +111,7 @@ function extractLines(source: Element) {
   });
 }
 
-function extractWords(source: Element) {
+export function extractWords(source: Element) {
   if (process.env.JEST_WORKER_ID !== undefined) {
     // Code specific to the test environment
     console.log("Running in test mode");
@@ -121,7 +122,6 @@ function extractWords(source: Element) {
   }
 
   const textContent = textNode.textContent || "";
-
   const wordsWithSpaces = textContent.match(/\S+|\s+/g);
   if (!wordsWithSpaces) {
     return;
@@ -141,8 +141,8 @@ function extractWords(source: Element) {
   });
 }
 
-function extractChars(source: Element) {
-  const textNode = source.firstChild;
+export function extractChars(source: Element) {
+  const textNode = source?.firstChild;
   if (!textNode || textNode.nodeType !== 3) {
     return;
   }
@@ -152,7 +152,7 @@ function extractChars(source: Element) {
   const charsWithSpaces = textContent.split("");
   if (!charsWithSpaces) return;
 
-  source.removeChild(source.firstChild);
+  source.removeChild(textNode);
 
   charsWithSpaces.forEach((char) => {
     const lineElement = document.createElement("span");
