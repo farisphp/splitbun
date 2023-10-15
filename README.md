@@ -21,9 +21,9 @@ npm i splitbun
 To use SplitBun, you need to select the text element you want to split and initialize it. Here's a basic example:
 
 ```
-import SplitBun from 'splitbun'
+import splitBun from 'splitbun'
 
-SplitBun('#target',{
+splitBun('#target',{
     type: 'lines'
 })
 ```
@@ -42,6 +42,8 @@ The target element(s) for the SplitBun call. This can be a selector string or a 
 | :----------- | :-------------------- | :------------------------------------------------------------------------------------- |
 | `type`       | lines, words, or chars | **Default to lines**. splits text element into individual lines, words, or characters. |
 | `onComplete` | `function`            | Function that will be executed after text splitting is completed.                      |
+| `wrapperClass` | `string`            | Custom class for wrapper element                      |
+| `innerClass` | `string`            | Custom class for inner element                      |
 
 ## Example
 
@@ -79,6 +81,15 @@ splitBun("[text-split]", {
     onComplete: () => {
         console.log('split text completed)
     },
+});
+```
+
+#### Using custom class callback
+
+```
+splitBun("[text-split]", {
+    type: 'lines',
+    innerClass: 'text-slide-up'
 });
 ```
 
