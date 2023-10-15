@@ -1,6 +1,11 @@
 export default function splitBun(
   selector: string | NodeListOf<Element>,
-  options?: { type?: "chars" | "words" | "lines"; onComplete?: () => any }
+  options?: {
+    type?: "chars" | "words" | "lines";
+    onComplete?: () => any;
+    wrapperClass?: string;
+    innerClass?: string;
+  }
 ) {
   let elements = selector as NodeListOf<Element>;
   if (typeof selector === "string") {
@@ -8,7 +13,11 @@ export default function splitBun(
   }
 
   let type = options?.type || "lines";
-  let extract = (source: Element) => {};
+  let extract = (
+    source: Element,
+    wrapperClass?: string,
+    innerClass?: string
+  ) => {};
   switch (type) {
     case "lines":
       extract = extractLines;
@@ -23,7 +32,7 @@ export default function splitBun(
   }
 
   elements.forEach((element) => {
-    extract(element);
+    extract(element, options?.wrapperClass, options?.innerClass);
   });
 
   options?.onComplete && options.onComplete();
@@ -34,7 +43,11 @@ function collapseWhiteSpace(value: string | null) {
   return value.trim().replace(/\s+/g, " ");
 }
 
-export function extractLines(source: Element) {
+export function extractLines(
+  source: Element,
+  wrapperClass?: string,
+  innerClass?: string
+) {
   const textNode = source.firstChild;
   if (!textNode || textNode.nodeType !== 3) {
     console.log("EXIT");
@@ -97,21 +110,31 @@ export function extractLines(source: Element) {
   resultLines.forEach((line) => {
     const lineElement = document.createElement("span");
     lineElement.classList.add("line-wrapper");
+    if (wrapperClass) {
+      lineElement.classList.add(wrapperClass);
+    }
     lineElement.style.display = "block";
     lineElement.style.width = "100%";
+
     const innerElement = document.createElement("span");
-    lineElement.classList.add("line-wrapper");
-    lineElement.style.display = "block";
-    lineElement.style.width = "100%";
-    innerElement.textContent = line;
     innerElement.classList.add("line-inner");
+    if (innerClass) {
+      innerElement.classList.add(innerClass);
+    }
+    innerElement.style.display = "block";
+    innerElement.style.width = "100%";
+    innerElement.textContent = line;
 
     lineElement.appendChild(innerElement);
     source.appendChild(lineElement);
   });
 }
 
-export function extractWords(source: Element) {
+export function extractWords(
+  source: Element,
+  wrapperClass?: string,
+  innerClass?: string
+) {
   if (process.env.JEST_WORKER_ID !== undefined) {
     // Code specific to the test environment
     console.log("Running in test mode");
@@ -131,17 +154,27 @@ export function extractWords(source: Element) {
   wordsWithSpaces.forEach((word) => {
     const lineElement = document.createElement("span");
     lineElement.classList.add("word-wrapper");
+    if (wrapperClass) {
+      lineElement.classList.add(wrapperClass);
+    }
 
     const innerElement = document.createElement("span");
-    innerElement.textContent = word;
     innerElement.classList.add("word-inner");
+    if (innerClass) {
+      innerElement.classList.add(innerClass);
+    }
+    innerElement.textContent = word;
 
     lineElement.appendChild(innerElement);
     source.appendChild(lineElement);
   });
 }
 
-export function extractChars(source: Element) {
+export function extractChars(
+  source: Element,
+  wrapperClass?: string,
+  innerClass?: string
+) {
   const textNode = source?.firstChild;
   if (!textNode || textNode.nodeType !== 3) {
     return;
@@ -157,10 +190,16 @@ export function extractChars(source: Element) {
   charsWithSpaces.forEach((char) => {
     const lineElement = document.createElement("span");
     lineElement.classList.add("char-wrapper");
+    if (wrapperClass) {
+      lineElement.classList.add(wrapperClass);
+    }
 
     const innerElement = document.createElement("span");
-    innerElement.textContent = char;
     innerElement.classList.add("char-inner");
+    if (innerClass) {
+      innerElement.classList.add(innerClass);
+    }
+    innerElement.textContent = char;
 
     lineElement.appendChild(innerElement);
     source.appendChild(lineElement);
