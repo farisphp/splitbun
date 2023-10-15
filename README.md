@@ -4,8 +4,7 @@ SplitBun is a lightweight JavaScript library that allows you to split text eleme
 
 ## Features
 - Split text into lines, words, or characters.
-- Customize animation speed, delays, and more.
-- Easily integrate JavaScript projects.
+- Easily integrate into JavaScript projects.
 - Alternative for GSAP Text Spliter
 
 ## Installation
