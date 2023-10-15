@@ -29,7 +29,7 @@ SplitBun('#target',{
 
 ## API Reference
 
-SplitType(target, [options])
+SplitBun(target, [options])
 
 #### Target
 
