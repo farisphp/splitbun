@@ -3,13 +3,14 @@
 SplitBun is a lightweight JavaScript library that allows you to split text elements into individual lines, words, or characters with ease. This library is perfect for adding animation effects, creating typewriter-like text animations, or any other creative text manipulation you can imagine.
 
 ## Features
+
 - Split text into lines, words, or characters.
 - Easily integrate into JavaScript projects.
 - Alternative for GSAP Text Spliter
 
 ## Installation
 
-To use SplitBun in your project, you can install it via npm.
+To use Text Splitter in your project, you can install it via npm.
 
 ```
 npm i splitbun
@@ -33,19 +34,21 @@ SplitBun(target, [options])
 
 #### Target
 
-The target element(s) for the SplitBun call. This can be a selector string, a single element, or a collection of elements (ie NodeList, jQuery object, or array).
+The target element(s) for the SplitBun call. This can be a selector string or a collection of elements (ie NodeList, jQuery object, or array).
 
 #### Options
 
-| Name | Type                   | Description                       |
-| :-------- | :-----------------| :-------------------------------- |
-| `type`      | "lines, words, chars" | **Required**. splits text element into individual lines, words, or characters. |
-| `onComplete`      | `function` | callback after text split is complete |
+| Name         | Type                  | Description                                                                            |
+| :----------- | :-------------------- | :------------------------------------------------------------------------------------- |
+| `type`       | lines | words | chars | **Default to lines**. splits text element into individual lines, words, or characters. |
+| `onComplete` | `function`            | Function that will be executed after text splitting is completed.                      |
 
 ## Example
+
 Here are a few examples of how you can use SplitBun:
 
 #### Splitting text into lines
+
 ```
 splitBun("[text-split]", {
     type: 'lines',
@@ -53,6 +56,7 @@ splitBun("[text-split]", {
 ```
 
 #### Splitting text into words
+
 ```
 splitBun("[text-split]", {
     type: 'words',
@@ -60,14 +64,15 @@ splitBun("[text-split]", {
 ```
 
 #### Splitting text into characters
+
 ```
 splitBun("[text-split]", {
     type: 'chars',
 });
 ```
 
-
 #### Using onComplete callback
+
 ```
 splitBun("[text-split]", {
     type: 'lines',
