@@ -96,15 +96,15 @@ export function extractLines(source: Element) {
 
   resultLines.forEach((line) => {
     const lineElement = document.createElement("span");
-    lineElement.classList.add("text-wrapper");
+    lineElement.classList.add("line-wrapper");
     lineElement.style.display = "block";
     lineElement.style.width = "100%";
     const innerElement = document.createElement("span");
-    lineElement.classList.add("text-wrapper");
+    lineElement.classList.add("line-wrapper");
     lineElement.style.display = "block";
     lineElement.style.width = "100%";
     innerElement.textContent = line;
-    innerElement.classList.add("text-inner");
+    innerElement.classList.add("line-inner");
 
     lineElement.appendChild(innerElement);
     source.appendChild(lineElement);
@@ -130,11 +130,11 @@ export function extractWords(source: Element) {
 
   wordsWithSpaces.forEach((word) => {
     const lineElement = document.createElement("span");
-    lineElement.classList.add("text-wrapper");
+    lineElement.classList.add("word-wrapper");
 
     const innerElement = document.createElement("span");
     innerElement.textContent = word;
-    innerElement.classList.add("text-inner");
+    innerElement.classList.add("word-inner");
 
     lineElement.appendChild(innerElement);
     source.appendChild(lineElement);
@@ -156,11 +156,11 @@ export function extractChars(source: Element) {
 
   charsWithSpaces.forEach((char) => {
     const lineElement = document.createElement("span");
-    lineElement.classList.add("text-wrapper");
+    lineElement.classList.add("char-wrapper");
 
     const innerElement = document.createElement("span");
     innerElement.textContent = char;
-    innerElement.classList.add("text-inner");
+    innerElement.classList.add("char-inner");
 
     lineElement.appendChild(innerElement);
     source.appendChild(lineElement);
