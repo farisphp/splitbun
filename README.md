@@ -40,7 +40,7 @@ The target element(s) for the SplitBun call. This can be a selector string or a 
 
 | Name         | Type                  | Description                                                                            |
 | :----------- | :-------------------- | :------------------------------------------------------------------------------------- |
-| `type`       | lines | words | chars | **Default to lines**. splits text element into individual lines, words, or characters. |
+| `type`       | lines, words, or chars | **Default to lines**. splits text element into individual lines, words, or characters. |
 | `onComplete` | `function`            | Function that will be executed after text splitting is completed.                      |
 
 ## Example
