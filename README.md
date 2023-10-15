@@ -84,7 +84,7 @@ splitBun("[text-split]", {
 });
 ```
 
-#### Using custom class callback
+#### Using custom class
 
 ```
 splitBun("[text-split]", {
