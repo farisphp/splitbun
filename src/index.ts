@@ -1,0 +1,168 @@
+export default function splitBun(
+  selector: string | NodeListOf<Element>,
+  options?: { type?: "chars" | "words" | "lines"; onComplete?: () => any }
+) {
+  let elements = selector as NodeListOf<Element>;
+  if (typeof selector === "string") {
+    elements = document.querySelectorAll(selector);
+  }
+
+  let type = options?.type || "lines";
+  let extract = (source: Element) => {};
+  switch (type) {
+    case "lines":
+      extract = extractLines;
+      break;
+    case "words":
+      extract = extractWords;
+      break;
+    case "chars":
+      extract = extractChars;
+    default:
+      break;
+  }
+
+  elements.forEach((element) => {
+    extract(element);
+  });
+
+  options?.onComplete && options.onComplete();
+}
+
+function collapseWhiteSpace(value: string | null) {
+  if (!value) return "";
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function extractLines(source: Element) {
+  const textNode = source.firstChild;
+  if (!textNode || textNode.nodeType !== 3) {
+    return;
+  }
+
+  // BECAUSE SAFARI: None of the "modern" browsers seem to care about the actual
+  // layout of the underlying markup. However, Safari seems to create range
+  // rectangles based on the physical structure of the markup (even when it
+  // makes no difference in the rendering of the text). As such, let's rewrite
+  // the text content of the node to REMOVE SUPERFLUOS WHITE-SPACE. This will
+  // allow Safari's .getClientRects() to work like the other modern browsers.
+  textNode.textContent = collapseWhiteSpace(textNode.textContent);
+
+  // A Range represents a fragment of the document which contains nodes and
+  // parts of text nodes. One thing that's really cool about a Range is that we
+  // can access the bounding boxes that contain the contents of the Range. By
+  // incrementally adding characters - from our text node - into the range, and
+  // then looking at the Range's client rectangles, we can determine which
+  // characters belong in which rendered line.
+  const textContent = textNode.textContent || "";
+
+  const range = document.createRange();
+  let rawLines: string[][] = [];
+  let resultLines: string[] = [];
+  let lineCharacters: string[] = [];
+
+  // Iterate over every character in the text node.
+  for (let i = 0; i < textContent.length; i++) {
+    // Set the range to span from the beginning of the text node up to and
+    // including the current character (offset).
+    range.setStart(textNode, 0);
+    range.setEnd(textNode, i + 1);
+
+    // At this point, the Range's client rectangles will include a rectangle
+    // for each visually-rendered line of text. Which means, the last
+    // character in our Range (the current character in our for-loop) will be
+    // the last character in the last line of text (in our Range). As such, we
+    // can use the current rectangle count to determine the line of text.
+    const lineIndex = range.getClientRects().length - 1;
+
+    // If this is the first character in this line, create a new buffer for
+    // this line.
+    if (!rawLines[lineIndex]) {
+      rawLines.push((lineCharacters = []));
+    }
+
+    // Add this character to the currently pending line of text.
+    lineCharacters.push(textContent.charAt(i));
+  }
+
+  // At this point, we have an array (lines) of arrays (characters). Let's
+  // collapse the character buffers down into a single text value.
+  resultLines = rawLines.map(function operator(characters) {
+    return collapseWhiteSpace(characters.join(""));
+  });
+
+  source.removeChild(source.firstChild);
+
+  resultLines.forEach((line) => {
+    const lineElement = document.createElement("span");
+    lineElement.classList.add("text-wrapper");
+    lineElement.style.display = "block";
+    lineElement.style.width = "100%";
+    const innerElement = document.createElement("span");
+    lineElement.classList.add("text-wrapper");
+    lineElement.style.display = "block";
+    lineElement.style.width = "100%";
+    innerElement.textContent = line;
+    innerElement.classList.add("text-inner");
+
+    lineElement.appendChild(innerElement);
+    source.appendChild(lineElement);
+  });
+}
+
+function extractWords(source: Element) {
+  if (process.env.JEST_WORKER_ID !== undefined) {
+    // Code specific to the test environment
+    console.log("Running in test mode");
+  }
+  const textNode = source.firstChild;
+  if (!textNode || textNode.nodeType !== 3) {
+    return;
+  }
+
+  const textContent = textNode.textContent || "";
+
+  const wordsWithSpaces = textContent.match(/\S+|\s+/g);
+  if (!wordsWithSpaces) {
+    return;
+  }
+  source.removeChild(source.firstChild);
+
+  wordsWithSpaces.forEach((word) => {
+    const lineElement = document.createElement("span");
+    lineElement.classList.add("text-wrapper");
+
+    const innerElement = document.createElement("span");
+    innerElement.textContent = word;
+    innerElement.classList.add("text-inner");
+
+    lineElement.appendChild(innerElement);
+    source.appendChild(lineElement);
+  });
+}
+
+function extractChars(source: Element) {
+  const textNode = source.firstChild;
+  if (!textNode || textNode.nodeType !== 3) {
+    return;
+  }
+
+  const textContent = textNode.textContent || "";
+
+  const charsWithSpaces = textContent.split("");
+  if (!charsWithSpaces) return;
+
+  source.removeChild(source.firstChild);
+
+  charsWithSpaces.forEach((char) => {
+    const lineElement = document.createElement("span");
+    lineElement.classList.add("text-wrapper");
+
+    const innerElement = document.createElement("span");
+    innerElement.textContent = char;
+    innerElement.classList.add("text-inner");
+
+    lineElement.appendChild(innerElement);
+    source.appendChild(lineElement);
+  });
+}
