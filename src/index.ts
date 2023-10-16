@@ -50,7 +50,6 @@ export function extractLines(
 ) {
   const textNode = source.firstChild;
   if (!textNode || textNode.nodeType !== 3) {
-    console.log("EXIT");
     return;
   }
 
@@ -104,7 +103,6 @@ export function extractLines(
   resultLines = rawLines.map(function operator(characters) {
     return collapseWhiteSpace(characters.join(""));
   });
-  console.log({ resultLines });
   if (resultLines.length > 0) source.removeChild(source.firstChild);
 
   resultLines.forEach((line) => {
@@ -135,10 +133,6 @@ export function extractWords(
   wrapperClass?: string,
   innerClass?: string
 ) {
-  if (process.env.JEST_WORKER_ID !== undefined) {
-    // Code specific to the test environment
-    console.log("Running in test mode");
-  }
   const textNode = source.firstChild;
   if (!textNode || textNode.nodeType !== 3) {
     return;
