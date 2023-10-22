@@ -8,6 +8,7 @@ const fileHeader = `/**
 * https://github.com/farisphp/splitbun
 * @version <%= pkg.version %>
 * @author Faris Perwira <faris.perwira@gmail.com>
+* @contributor Bagus Pramajaya <hi@baguspramajaya.com>
 */`;
 
 export default [
