@@ -10,10 +10,17 @@ SplitBun is a lightweight JavaScript library that allows you to split text eleme
 
 ## Installation
 
+#### NPM/Yarn
 To use Text Splitter in your project, you can install it via npm.
 
 ```
 npm i splitbun
+```
+
+#### CDN
+Or, include the following <script> tag to load splitBun from a CDN.
+```
+<script src="https://unpkg.com/splitbun"></script>
 ```
 
 ## Usage
