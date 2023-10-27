@@ -1,3 +1,5 @@
+![SpliBun](https://ucef10ac67ad77977a5aa20a7c95.dl.dropboxusercontent.com/cd/0/inline/CGaNCjDAR7TxlfQXW1EmtrJX2Hj9XqnlgpNfTpu2f_YjKORE7Rqo5I99JpkDF2vm9QEyaMKwfSxHneZvt6-pJ6dI4axX9mIoUCW3HgSJTHLVM4gYy7J7W4JhX5Qgy89peYZTRmIAkALgRBlJD9aKp5q6/file#)
+
 # SplitBun - Text Splitter JavaScript Library
 
 SplitBun is a lightweight JavaScript library that allows you to split text elements into individual lines, words, or characters with ease. This library is perfect for adding animation effects, creating typewriter-like text animations, or any other creative text manipulation you can imagine.
