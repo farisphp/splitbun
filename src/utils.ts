@@ -3,12 +3,22 @@ function collapseWhiteSpace(value: string | null) {
   return value.trim().replace(/\s+/g, " ");
 }
 
+function saveText(source: HTMLElement, text: string) {
+  if (!source.dataset.originaltext) source.dataset.originaltext = text;
+}
+
 export function extractLines(
-  source: Element,
+  source: HTMLElement,
   wrapperClass?: string,
   innerClass?: string
 ) {
-  const textNode = source.firstChild;
+  const originalText = source.dataset["originaltext"];
+  let textNode = source.firstChild;
+  if (originalText) {
+    textNode = document.createTextNode(originalText);
+    source.appendChild(textNode);
+  }
+
   if (!textNode || textNode.nodeType !== 3) {
     return;
   }
@@ -27,7 +37,11 @@ export function extractLines(
   // incrementally adding characters - from our text node - into the range, and
   // then looking at the Range's client rectangles, we can determine which
   // characters belong in which rendered line.
-  const textContent = textNode.textContent || "";
+  let textContent = textNode.textContent || "";
+
+  if (originalText) textContent = originalText;
+
+  saveText(source, textContent);
 
   const range = document.createRange();
   let rawLines: string[][] = [];
@@ -63,7 +77,14 @@ export function extractLines(
   resultLines = rawLines.map(function operator(characters) {
     return collapseWhiteSpace(characters.join(""));
   });
-  if (resultLines.length > 0) source.removeChild(source.firstChild);
+
+  if (resultLines.length < 1) return;
+
+  if (originalText) {
+    source.textContent = "";
+  } else {
+    source.removeChild(textNode);
+  }
 
   resultLines.forEach((line) => {
     const lineElement = document.createElement("span");
@@ -89,21 +110,37 @@ export function extractLines(
 }
 
 export function extractWords(
-  source: Element,
+  source: HTMLElement,
   wrapperClass?: string,
   innerClass?: string
 ) {
-  const textNode = source.firstChild;
+  const originalText = source.dataset["originaltext"];
+  let textNode = source.firstChild;
+
+  if (originalText) {
+    textNode = document.createTextNode(originalText);
+    source.appendChild(textNode);
+  }
+
   if (!textNode || textNode.nodeType !== 3) {
     return;
   }
 
-  const textContent = textNode.textContent || "";
+  let textContent = textNode.textContent || "";
+  if (originalText) textContent = originalText;
+
+  saveText(source, textContent);
+
   const wordsWithSpaces = textContent.match(/\S+|\s+/g);
   if (!wordsWithSpaces) {
     return;
   }
-  source.removeChild(source.firstChild);
+
+  if (originalText) {
+    source.textContent = "";
+  } else {
+    source.removeChild(textNode);
+  }
 
   wordsWithSpaces.forEach((word) => {
     const lineElement = document.createElement("span");
@@ -125,21 +162,37 @@ export function extractWords(
 }
 
 export function extractChars(
-  source: Element,
+  source: HTMLElement,
   wrapperClass?: string,
   innerClass?: string
 ) {
-  const textNode = source?.firstChild;
+  const originalText = source.dataset["originaltext"];
+  let textNode = source.firstChild;
+
+  if (originalText) {
+    textNode = document.createTextNode(originalText);
+    source.appendChild(textNode);
+  }
+
   if (!textNode || textNode.nodeType !== 3) {
     return;
   }
 
-  const textContent = textNode.textContent || "";
+  let textContent = textNode.textContent || "";
+  if (originalText) textContent = originalText;
 
   const charsWithSpaces = textContent.split("");
   if (!charsWithSpaces) return;
 
-  source.removeChild(textNode);
+  if (originalText) textContent = originalText;
+
+  saveText(source, textContent);
+
+  if (originalText) {
+    source.textContent = "";
+  } else {
+    source.removeChild(textNode);
+  }
 
   charsWithSpaces.forEach((char) => {
     const lineElement = document.createElement("span");

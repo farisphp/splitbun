@@ -16,7 +16,7 @@ export default function splitBun(
 
   let type = options?.type || "lines";
   let extract = (
-    source: Element,
+    source: HTMLElement,
     wrapperClass?: string,
     innerClass?: string
   ) => {};
@@ -34,7 +34,7 @@ export default function splitBun(
   }
 
   elements.forEach((element) => {
-    extract(element, options?.wrapperClass, options?.innerClass);
+    extract(element as HTMLElement, options?.wrapperClass, options?.innerClass);
   });
 
   options?.onComplete && options.onComplete();
