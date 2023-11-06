@@ -7,10 +7,24 @@ function saveText(source: HTMLElement, text: string) {
   if (!source.dataset.originaltext) source.dataset.originaltext = text;
 }
 
+function addClasslist(element: HTMLElement, className: string) {
+  className.split(" ").map((c) => element.classList.add(c));
+}
+
+export type StylesProps = Partial<CSSStyleDeclaration>;
+
+function addMultipleStyles(element: HTMLElement, styles: StylesProps): void {
+  for (const [key, value] of Object.entries(styles)) {
+    element.style[key as any] = value as string;
+  }
+}
+
 export function extractLines(
   source: HTMLElement,
   wrapperClass?: string,
-  innerClass?: string
+  innerClass?: string,
+  wrapperStyle?: StylesProps,
+  innerStyle?: StylesProps
 ) {
   const originalText = source.dataset["originaltext"];
   let textNode = source.firstChild;
@@ -90,18 +104,26 @@ export function extractLines(
     const lineElement = document.createElement("span");
     lineElement.classList.add("line-wrapper");
     if (wrapperClass) {
-      lineElement.classList.add(wrapperClass);
+      addClasslist(lineElement, wrapperClass);
     }
     lineElement.style.display = "block";
     lineElement.style.width = "100%";
+    if (wrapperStyle) {
+      addMultipleStyles(lineElement, wrapperStyle);
+    }
 
     const innerElement = document.createElement("span");
     innerElement.classList.add("line-inner");
     if (innerClass) {
-      innerElement.classList.add(innerClass);
+      addClasslist(innerElement, innerClass);
     }
+
     innerElement.style.display = "block";
     innerElement.style.width = "100%";
+    if (innerStyle) {
+      addMultipleStyles(innerElement, innerStyle);
+    }
+
     innerElement.textContent = line;
 
     lineElement.appendChild(innerElement);
@@ -112,7 +134,9 @@ export function extractLines(
 export function extractWords(
   source: HTMLElement,
   wrapperClass?: string,
-  innerClass?: string
+  innerClass?: string,
+  wrapperStyle?: StylesProps,
+  innerStyle?: StylesProps
 ) {
   const originalText = source.dataset["originaltext"];
   let textNode = source.firstChild;
@@ -145,14 +169,21 @@ export function extractWords(
   wordsWithSpaces.forEach((word) => {
     const lineElement = document.createElement("span");
     lineElement.classList.add("word-wrapper");
+
     if (wrapperClass) {
-      lineElement.classList.add(wrapperClass);
+      addClasslist(lineElement, wrapperClass);
+    }
+    if (wrapperStyle) {
+      addMultipleStyles(lineElement, wrapperStyle);
     }
 
     const innerElement = document.createElement("span");
     innerElement.classList.add("word-inner");
     if (innerClass) {
-      innerElement.classList.add(innerClass);
+      addClasslist(innerElement, innerClass);
+    }
+    if (innerStyle) {
+      addMultipleStyles(innerElement, innerStyle);
     }
     innerElement.textContent = word;
 
@@ -164,7 +195,9 @@ export function extractWords(
 export function extractChars(
   source: HTMLElement,
   wrapperClass?: string,
-  innerClass?: string
+  innerClass?: string,
+  wrapperStyle?: StylesProps,
+  innerStyle?: StylesProps
 ) {
   const originalText = source.dataset["originaltext"];
   let textNode = source.firstChild;
@@ -198,13 +231,20 @@ export function extractChars(
     const lineElement = document.createElement("span");
     lineElement.classList.add("char-wrapper");
     if (wrapperClass) {
-      lineElement.classList.add(wrapperClass);
+      addClasslist(lineElement, wrapperClass);
+    }
+    if (wrapperStyle) {
+      addMultipleStyles(lineElement, wrapperStyle);
     }
 
     const innerElement = document.createElement("span");
     innerElement.classList.add("char-inner");
+
     if (innerClass) {
-      innerElement.classList.add(innerClass);
+      addClasslist(innerElement, innerClass);
+    }
+    if (innerStyle) {
+      addMultipleStyles(innerElement, innerStyle);
     }
     innerElement.textContent = char;
 

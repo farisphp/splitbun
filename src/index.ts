@@ -1,4 +1,4 @@
-import { extractChars, extractLines, extractWords } from "./utils";
+import { extractChars, extractLines, extractWords, StylesProps } from "./utils";
 
 export default function splitBun(
   selector: string | NodeListOf<Element>,
@@ -7,6 +7,8 @@ export default function splitBun(
     onComplete?: () => any;
     wrapperClass?: string;
     innerClass?: string;
+    wrapperStyle?: StylesProps;
+    innerStyle?: StylesProps;
   }
 ) {
   let elements = selector as NodeListOf<Element>;
@@ -18,7 +20,9 @@ export default function splitBun(
   let extract = (
     source: HTMLElement,
     wrapperClass?: string,
-    innerClass?: string
+    innerClass?: string,
+    wrapperStyle?: StylesProps,
+    innerStyle?: StylesProps
   ) => {};
   switch (type) {
     case "lines":
@@ -34,7 +38,13 @@ export default function splitBun(
   }
 
   elements.forEach((element) => {
-    extract(element as HTMLElement, options?.wrapperClass, options?.innerClass);
+    extract(
+      element as HTMLElement,
+      options?.wrapperClass,
+      options?.innerClass,
+      options?.wrapperStyle,
+      options?.innerStyle
+    );
   });
 
   options?.onComplete && options.onComplete();
