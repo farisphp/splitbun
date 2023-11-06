@@ -1,6 +1,6 @@
 {
   "name": "splitbun",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "A javascript library that splits text element into individual lines, words, or characters.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

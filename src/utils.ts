@@ -3,12 +3,36 @@ function collapseWhiteSpace(value: string | null) {
   return value.trim().replace(/\s+/g, " ");
 }
 
+function saveText(source: HTMLElement, text: string) {
+  if (!source.dataset.originaltext) source.dataset.originaltext = text;
+}
+
+function addClasslist(element: HTMLElement, className: string) {
+  className.split(" ").map((c) => element.classList.add(c));
+}
+
+export type StylesProps = Partial<CSSStyleDeclaration>;
+
+function addMultipleStyles(element: HTMLElement, styles: StylesProps): void {
+  for (const [key, value] of Object.entries(styles)) {
+    element.style[key as any] = value as string;
+  }
+}
+
 export function extractLines(
-  source: Element,
+  source: HTMLElement,
   wrapperClass?: string,
-  innerClass?: string
+  innerClass?: string,
+  wrapperStyle?: StylesProps,
+  innerStyle?: StylesProps
 ) {
-  const textNode = source.firstChild;
+  const originalText = source.dataset["originaltext"];
+  let textNode = source.firstChild;
+  if (originalText) {
+    textNode = document.createTextNode(originalText);
+    source.appendChild(textNode);
+  }
+
   if (!textNode || textNode.nodeType !== 3) {
     return;
   }
@@ -27,7 +51,11 @@ export function extractLines(
   // incrementally adding characters - from our text node - into the range, and
   // then looking at the Range's client rectangles, we can determine which
   // characters belong in which rendered line.
-  const textContent = textNode.textContent || "";
+  let textContent = textNode.textContent || "";
+
+  if (originalText) textContent = originalText;
+
+  saveText(source, textContent);
 
   const range = document.createRange();
   let rawLines: string[][] = [];
@@ -63,24 +91,39 @@ export function extractLines(
   resultLines = rawLines.map(function operator(characters) {
     return collapseWhiteSpace(characters.join(""));
   });
-  if (resultLines.length > 0) source.removeChild(source.firstChild);
+
+  if (resultLines.length < 1) return;
+
+  if (originalText) {
+    source.textContent = "";
+  } else {
+    source.removeChild(textNode);
+  }
 
   resultLines.forEach((line) => {
     const lineElement = document.createElement("span");
     lineElement.classList.add("line-wrapper");
     if (wrapperClass) {
-      lineElement.classList.add(wrapperClass);
+      addClasslist(lineElement, wrapperClass);
     }
     lineElement.style.display = "block";
     lineElement.style.width = "100%";
+    if (wrapperStyle) {
+      addMultipleStyles(lineElement, wrapperStyle);
+    }
 
     const innerElement = document.createElement("span");
     innerElement.classList.add("line-inner");
     if (innerClass) {
-      innerElement.classList.add(innerClass);
+      addClasslist(innerElement, innerClass);
     }
+
     innerElement.style.display = "block";
     innerElement.style.width = "100%";
+    if (innerStyle) {
+      addMultipleStyles(innerElement, innerStyle);
+    }
+
     innerElement.textContent = line;
 
     lineElement.appendChild(innerElement);
@@ -89,33 +132,58 @@ export function extractLines(
 }
 
 export function extractWords(
-  source: Element,
+  source: HTMLElement,
   wrapperClass?: string,
-  innerClass?: string
+  innerClass?: string,
+  wrapperStyle?: StylesProps,
+  innerStyle?: StylesProps
 ) {
-  const textNode = source.firstChild;
+  const originalText = source.dataset["originaltext"];
+  let textNode = source.firstChild;
+
+  if (originalText) {
+    textNode = document.createTextNode(originalText);
+    source.appendChild(textNode);
+  }
+
   if (!textNode || textNode.nodeType !== 3) {
     return;
   }
 
-  const textContent = textNode.textContent || "";
+  let textContent = textNode.textContent || "";
+  if (originalText) textContent = originalText;
+
+  saveText(source, textContent);
+
   const wordsWithSpaces = textContent.match(/\S+|\s+/g);
   if (!wordsWithSpaces) {
     return;
   }
-  source.removeChild(source.firstChild);
+
+  if (originalText) {
+    source.textContent = "";
+  } else {
+    source.removeChild(textNode);
+  }
 
   wordsWithSpaces.forEach((word) => {
     const lineElement = document.createElement("span");
     lineElement.classList.add("word-wrapper");
+
     if (wrapperClass) {
-      lineElement.classList.add(wrapperClass);
+      addClasslist(lineElement, wrapperClass);
+    }
+    if (wrapperStyle) {
+      addMultipleStyles(lineElement, wrapperStyle);
     }
 
     const innerElement = document.createElement("span");
     innerElement.classList.add("word-inner");
     if (innerClass) {
-      innerElement.classList.add(innerClass);
+      addClasslist(innerElement, innerClass);
+    }
+    if (innerStyle) {
+      addMultipleStyles(innerElement, innerStyle);
     }
     innerElement.textContent = word;
 
@@ -125,33 +193,58 @@ export function extractWords(
 }
 
 export function extractChars(
-  source: Element,
+  source: HTMLElement,
   wrapperClass?: string,
-  innerClass?: string
+  innerClass?: string,
+  wrapperStyle?: StylesProps,
+  innerStyle?: StylesProps
 ) {
-  const textNode = source?.firstChild;
+  const originalText = source.dataset["originaltext"];
+  let textNode = source.firstChild;
+
+  if (originalText) {
+    textNode = document.createTextNode(originalText);
+    source.appendChild(textNode);
+  }
+
   if (!textNode || textNode.nodeType !== 3) {
     return;
   }
 
-  const textContent = textNode.textContent || "";
+  let textContent = textNode.textContent || "";
+  if (originalText) textContent = originalText;
 
   const charsWithSpaces = textContent.split("");
   if (!charsWithSpaces) return;
 
-  source.removeChild(textNode);
+  if (originalText) textContent = originalText;
+
+  saveText(source, textContent);
+
+  if (originalText) {
+    source.textContent = "";
+  } else {
+    source.removeChild(textNode);
+  }
 
   charsWithSpaces.forEach((char) => {
     const lineElement = document.createElement("span");
     lineElement.classList.add("char-wrapper");
     if (wrapperClass) {
-      lineElement.classList.add(wrapperClass);
+      addClasslist(lineElement, wrapperClass);
+    }
+    if (wrapperStyle) {
+      addMultipleStyles(lineElement, wrapperStyle);
     }
 
     const innerElement = document.createElement("span");
     innerElement.classList.add("char-inner");
+
     if (innerClass) {
-      innerElement.classList.add(innerClass);
+      addClasslist(innerElement, innerClass);
+    }
+    if (innerStyle) {
+      addMultipleStyles(innerElement, innerStyle);
     }
     innerElement.textContent = char;
 

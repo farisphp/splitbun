@@ -25,26 +25,6 @@ export default [
       banner(() => fileHeader),
     ],
   },
-  // {
-  //   input: "src/index.ts",
-  //   output: {
-  //     file: "dist/index.js",
-  //     format: "esm",
-  //     name: "SplitBun",
-  //   },
-  //   plugins: [
-  //     typescript({
-  //       tsconfig: "./tsconfig.json",
-  //       inlineSources: true,
-  //       declaration: true,
-  //       outDir: "./dist",
-  //       lib: ["es5", "es6", "dom"],
-  //       target: "es5",
-  //     }),
-  //     terser(),
-  //     banner(() => fileHeader),
-  //   ],
-  // },
   {
     input: "src/index.ts",
     output: {
