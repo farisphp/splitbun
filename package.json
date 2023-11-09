@@ -8,7 +8,7 @@
   "unpkg": "umd/index.min.js",
   "files": [
     "umd/*.{js,ts}",
-    "dist/*.{js,ts}"
+    "dist/*.{js,ts,mjs}"
   ],
   "scripts": {
     "build": "rollup -c",
