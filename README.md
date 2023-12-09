@@ -1,4 +1,4 @@
-![SpliBun](https://ucef10ac67ad77977a5aa20a7c95.dl.dropboxusercontent.com/cd/0/inline/CGaNCjDAR7TxlfQXW1EmtrJX2Hj9XqnlgpNfTpu2f_YjKORE7Rqo5I99JpkDF2vm9QEyaMKwfSxHneZvt6-pJ6dI4axX9mIoUCW3HgSJTHLVM4gYy7J7W4JhX5Qgy89peYZTRmIAkALgRBlJD9aKp5q6/file#)
+![Splitbun](https://github.com/farisphp/splitbun/assets/40329676/16103676-4f9d-4fd2-8329-96ed67c3a39e)
 
 # SplitBun - Text Splitter JavaScript Library
 
