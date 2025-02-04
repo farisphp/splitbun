@@ -3,8 +3,10 @@ function collapseWhiteSpace(value: string | null) {
   return value.trim().replace(/\s+/g, " ");
 }
 
-function saveText(source: HTMLElement, text: string) {
-  if (!source.dataset.originaltext) source.dataset.originaltext = text;
+function saveText(source: HTMLElement) {
+  if (!source.dataset.originaltext) {
+    source.dataset.originaltext = source.innerHTML;
+  }
 }
 
 function addClasslist(element: HTMLElement, className: string) {
@@ -19,7 +21,8 @@ function addMultipleStyles(element: HTMLElement, styles: StylesProps): void {
   }
 }
 
-export function extractLines(
+function processTextNode(
+  textNode: Text,
   source: HTMLElement,
   wrapperClass?: string,
   innerClass?: string,
@@ -27,67 +30,35 @@ export function extractLines(
   innerStyle?: StylesProps
 ) {
   const originalText = source.dataset["originaltext"];
-  let textNode = source.firstChild;
-  if (originalText) {
-    textNode = document.createTextNode(originalText);
-    source.appendChild(textNode);
-  }
-
-  if (!textNode || textNode.nodeType !== 3) {
-    return;
-  }
-
-  // BECAUSE SAFARI: None of the "modern" browsers seem to care about the actual
-  // layout of the underlying markup. However, Safari seems to create range
-  // rectangles based on the physical structure of the markup (even when it
-  // makes no difference in the rendering of the text). As such, let's rewrite
-  // the text content of the node to REMOVE SUPERFLUOS WHITE-SPACE. This will
-  // allow Safari's .getClientRects() to work like the other modern browsers.
-  textNode.textContent = collapseWhiteSpace(textNode.textContent);
-
-  // A Range represents a fragment of the document which contains nodes and
-  // parts of text nodes. One thing that's really cool about a Range is that we
-  // can access the bounding boxes that contain the contents of the Range. By
-  // incrementally adding characters - from our text node - into the range, and
-  // then looking at the Range's client rectangles, we can determine which
-  // characters belong in which rendered line.
   let textContent = textNode.textContent || "";
 
   if (originalText) textContent = originalText;
-
-  saveText(source, textContent);
 
   const range = document.createRange();
   let rawLines: string[][] = [];
   let resultLines: string[] = [];
   let lineCharacters: string[] = [];
 
-  // Iterate over every character in the text node.
-  for (let i = 0; i < textContent.length; i++) {
-    // Set the range to span from the beginning of the text node up to and
-    // including the current character (offset).
+  // Ensure the text content is consistent and whitespace is collapsed
+  textNode.textContent = collapseWhiteSpace(textContent);
+
+  // Use the updated text content length
+  const textLength = textNode.textContent?.length || 0;
+
+  for (let i = 0; i < textLength; i++) {
     range.setStart(textNode, 0);
     range.setEnd(textNode, i + 1);
 
-    // At this point, the Range's client rectangles will include a rectangle
-    // for each visually-rendered line of text. Which means, the last
-    // character in our Range (the current character in our for-loop) will be
-    // the last character in the last line of text (in our Range). As such, we
-    // can use the current rectangle count to determine the line of text.
     const lineIndex = range.getClientRects().length - 1;
 
-    // If this is the first character in this line, create a new buffer for
-    // this line.
     if (!rawLines[lineIndex]) {
-      rawLines.push((lineCharacters = []));
+      rawLines[lineIndex] = []; // Ensure a new array is created for each line
     }
 
-    // Add this character to the currently pending line of text.
-    lineCharacters.push(textContent.charAt(i));
+    rawLines[lineIndex].push(textNode.textContent?.charAt(i) || "");
   }
+  console.log(rawLines);
 
-  // At this point, we have an array (lines) of arrays (characters). Let's
-  // collapse the character buffers down into a single text value.
   resultLines = rawLines.map(function operator(characters) {
     return collapseWhiteSpace(characters.join(""));
   });
@@ -124,10 +95,46 @@ export function extractLines(
       addMultipleStyles(innerElement, innerStyle);
     }
 
-    innerElement.textContent = line;
+    innerElement.innerHTML = line;
 
     lineElement.appendChild(innerElement);
     source.appendChild(lineElement);
+  });
+}
+
+function collectTextNodes(element: HTMLElement): Text[] {
+  const textNodes: Text[] = [];
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
+
+  let textNode: Text | null;
+  while ((textNode = walker.nextNode() as Text | null)) {
+    textNodes.push(textNode);
+  }
+
+  return textNodes;
+}
+
+export function extractLines(
+  source: HTMLElement,
+  wrapperClass?: string,
+  innerClass?: string,
+  wrapperStyle?: StylesProps,
+  innerStyle?: StylesProps
+) {
+  // Save the full text content of the element before processing
+  saveText(source);
+
+  const textNodes = collectTextNodes(source);
+
+  textNodes.forEach((textNode) => {
+    processTextNode(
+      textNode,
+      source,
+      wrapperClass,
+      innerClass,
+      wrapperStyle,
+      innerStyle
+    );
   });
 }
 
@@ -138,57 +145,52 @@ export function extractWords(
   wrapperStyle?: StylesProps,
   innerStyle?: StylesProps
 ) {
-  const originalText = source.dataset["originaltext"];
-  let textNode = source.firstChild;
+  // Save the full text content of the element before processing
+  saveText(source);
 
-  if (originalText) {
-    textNode = document.createTextNode(originalText);
-    source.appendChild(textNode);
-  }
+  const textNodes = collectTextNodes(source);
 
-  if (!textNode || textNode.nodeType !== 3) {
-    return;
-  }
+  textNodes.forEach((textNode) => {
+    let textContent = textNode.textContent || "";
+    const originalText = source.dataset["originaltext"];
 
-  let textContent = textNode.textContent || "";
-  if (originalText) textContent = originalText;
+    if (originalText) textContent = originalText;
 
-  saveText(source, textContent);
-
-  const wordsWithSpaces = textContent.match(/\S+|\s+/g);
-  if (!wordsWithSpaces) {
-    return;
-  }
-
-  if (originalText) {
-    source.textContent = "";
-  } else {
-    source.removeChild(textNode);
-  }
-
-  wordsWithSpaces.forEach((word) => {
-    const lineElement = document.createElement("span");
-    lineElement.classList.add("word-wrapper");
-
-    if (wrapperClass) {
-      addClasslist(lineElement, wrapperClass);
-    }
-    if (wrapperStyle) {
-      addMultipleStyles(lineElement, wrapperStyle);
+    const wordsWithSpaces = textContent.match(/\S+|\s+/g);
+    if (!wordsWithSpaces) {
+      return;
     }
 
-    const innerElement = document.createElement("span");
-    innerElement.classList.add("word-inner");
-    if (innerClass) {
-      addClasslist(innerElement, innerClass);
+    if (originalText) {
+      source.textContent = "";
+    } else {
+      source.removeChild(textNode);
     }
-    if (innerStyle) {
-      addMultipleStyles(innerElement, innerStyle);
-    }
-    innerElement.textContent = word;
 
-    lineElement.appendChild(innerElement);
-    source.appendChild(lineElement);
+    wordsWithSpaces.forEach((word) => {
+      const lineElement = document.createElement("span");
+      lineElement.classList.add("word-wrapper");
+
+      if (wrapperClass) {
+        addClasslist(lineElement, wrapperClass);
+      }
+      if (wrapperStyle) {
+        addMultipleStyles(lineElement, wrapperStyle);
+      }
+
+      const innerElement = document.createElement("span");
+      innerElement.classList.add("word-inner");
+      if (innerClass) {
+        addClasslist(innerElement, innerClass);
+      }
+      if (innerStyle) {
+        addMultipleStyles(innerElement, innerStyle);
+      }
+      innerElement.textContent = word;
+
+      lineElement.appendChild(innerElement);
+      source.appendChild(lineElement);
+    });
   });
 }
 
@@ -199,56 +201,49 @@ export function extractChars(
   wrapperStyle?: StylesProps,
   innerStyle?: StylesProps
 ) {
-  const originalText = source.dataset["originaltext"];
-  let textNode = source.firstChild;
+  // Save the full text content of the element before processing
+  saveText(source);
 
-  if (originalText) {
-    textNode = document.createTextNode(originalText);
-    source.appendChild(textNode);
-  }
+  const textNodes = collectTextNodes(source);
 
-  if (!textNode || textNode.nodeType !== 3) {
-    return;
-  }
+  textNodes.forEach((textNode) => {
+    let textContent = textNode.textContent || "";
+    const originalText = source.dataset["originaltext"];
 
-  let textContent = textNode.textContent || "";
-  if (originalText) textContent = originalText;
+    if (originalText) textContent = originalText;
 
-  const charsWithSpaces = textContent.split("");
-  if (!charsWithSpaces) return;
+    const charsWithSpaces = textContent.split("");
+    if (!charsWithSpaces) return;
 
-  if (originalText) textContent = originalText;
-
-  saveText(source, textContent);
-
-  if (originalText) {
-    source.textContent = "";
-  } else {
-    source.removeChild(textNode);
-  }
-
-  charsWithSpaces.forEach((char) => {
-    const lineElement = document.createElement("span");
-    lineElement.classList.add("char-wrapper");
-    if (wrapperClass) {
-      addClasslist(lineElement, wrapperClass);
-    }
-    if (wrapperStyle) {
-      addMultipleStyles(lineElement, wrapperStyle);
+    if (originalText) {
+      source.textContent = "";
+    } else {
+      source.removeChild(textNode);
     }
 
-    const innerElement = document.createElement("span");
-    innerElement.classList.add("char-inner");
+    charsWithSpaces.forEach((char) => {
+      const lineElement = document.createElement("span");
+      lineElement.classList.add("char-wrapper");
+      if (wrapperClass) {
+        addClasslist(lineElement, wrapperClass);
+      }
+      if (wrapperStyle) {
+        addMultipleStyles(lineElement, wrapperStyle);
+      }
 
-    if (innerClass) {
-      addClasslist(innerElement, innerClass);
-    }
-    if (innerStyle) {
-      addMultipleStyles(innerElement, innerStyle);
-    }
-    innerElement.textContent = char;
+      const innerElement = document.createElement("span");
+      innerElement.classList.add("char-inner");
 
-    lineElement.appendChild(innerElement);
-    source.appendChild(lineElement);
+      if (innerClass) {
+        addClasslist(innerElement, innerClass);
+      }
+      if (innerStyle) {
+        addMultipleStyles(innerElement, innerStyle);
+      }
+      innerElement.textContent = char;
+
+      lineElement.appendChild(innerElement);
+      source.appendChild(lineElement);
+    });
   });
 }

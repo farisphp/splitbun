@@ -33,6 +33,7 @@ export default function splitBun(
       break;
     case "chars":
       extract = extractChars;
+      break;
     default:
       break;
   }
