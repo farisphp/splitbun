@@ -57,7 +57,6 @@ function processTextNode(
 
     rawLines[lineIndex].push(textNode.textContent?.charAt(i) || "");
   }
-  console.log(rawLines);
 
   resultLines = rawLines.map(function operator(characters) {
     return collapseWhiteSpace(characters.join(""));

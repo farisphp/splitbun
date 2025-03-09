@@ -55,7 +55,6 @@ describe("extractLines", () => {
     const source = document.createElement("div");
     const textNode = document.createTextNode("");
     source.appendChild(textNode);
-    console.log("source.childNodes.length", source.childNodes.length);
     // Act
     extractLines(source);
 
